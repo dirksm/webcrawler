@@ -2,7 +2,7 @@ package com.leeward.crawler.web.models;
 import java.io.Serializable;
 
 
-public class SearchResultModel implements Serializable {
+public class SearchResultModel implements Serializable, Comparable<SearchResultModel> {
 
 	private String title;
 	private String url;
@@ -31,6 +31,32 @@ public class SearchResultModel implements Serializable {
 		return "SearchResultModel [title=" + title + ", url=" + url + ", text="
 				+ text + "]";
 	}
-	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SearchResultModel other = (SearchResultModel) obj;
+		if (url == null) {
+			if (other.url != null)
+				return false;
+		} else if (!url.equals(other.url))
+			return false;
+		return true;
+	}
+	@Override
+	public int compareTo(SearchResultModel srm) {
+		return srm.getUrl().compareTo(this.getUrl());
+	}
 	
 }
