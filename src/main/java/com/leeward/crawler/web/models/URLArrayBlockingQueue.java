@@ -42,6 +42,10 @@ public class URLArrayBlockingQueue<E> extends ArrayBlockingQueue<String> {
 		}
 		return o;
 	}
+	
+	public int getSize() {
+		return urls.size();
+	}
 
 	@Override
 	public boolean offer(String e, long timeout, TimeUnit unit) throws InterruptedException {

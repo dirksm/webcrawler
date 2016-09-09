@@ -1,6 +1,9 @@
 package com.leeward.crawler.web.services;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -26,14 +29,15 @@ public class SearchService {
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.112 Safari/535.1";
     private static Logger log = LoggerFactory.getLogger(SearchService.class);
     private String prefix = "";
-	URLArrayBlockingQueue<String> urls = new URLArrayBlockingQueue<>(READER_QUEUE_SIZE);
+	URLArrayBlockingQueue<String> urls;
+	private static final int MAX_URL_SEARCHES = 1000;
 
 	
 	public List<SearchResultModel> search(String url, String searchWord) {
 
 		TreeSet<SearchResultModel> results = new TreeSet<SearchResultModel>();
 		prefix = url;
-		
+		urls = new URLArrayBlockingQueue<>(READER_QUEUE_SIZE);
 		String currentUrl = url;
 		// Retrieve the html document to search
 		// First grabbing any urls on the page.
@@ -64,14 +68,22 @@ public class SearchService {
 	
 	private List<SearchResultModel> crawl(String url, String searchWord) throws IOException {
 		List<SearchResultModel> results = new ArrayList<SearchResultModel>();
-		Connection connection = Jsoup.connect(url).userAgent(USER_AGENT);
-        Document htmlDocument = connection.get();
-        Response resp = connection.response();
-        if(resp.statusCode() == 200 && resp.contentType().contains("text/html"))
-        {
-        	populateURLs(htmlDocument);
-        	results = searchPage(url, htmlDocument, searchWord.split(" "));
-        }
+		try {
+			Connection connection = Jsoup.connect(url).userAgent(USER_AGENT);
+	        Document htmlDocument = connection.get();
+	        Response resp = connection.response();
+	        if(resp.statusCode() == 200 && resp.contentType().contains("text/html"))
+	        {
+	        	if (urls.getSize() < MAX_URL_SEARCHES) {
+		        	populateURLs(htmlDocument);
+				}
+	        	results = searchPage(url, htmlDocument, searchWord);
+	        }
+		} catch (SocketTimeoutException ste) {
+			log.error("Exception connecting to '"+url+"': " + ste.getMessage(),ste);
+		} catch (Exception e) {
+			log.error("Exception crawling url '"+url+"': "+e.getMessage(),e);
+		}
         return results;
 	}
 	
@@ -88,31 +100,39 @@ public class SearchService {
 	private void populateURLs(Document htmlDocument) {
     	List<String> urlLinks = getLinks(htmlDocument);
     	for (String urlLink : urlLinks) {
-    		if (urlLink.startsWith(prefix)) {
-    			System.out.println("Adding " + urlLink + " to list of searches.");
-        		urls.offer(urlLink);
+    		if (urlLink.startsWith(prefix) && isValidURI(urlLink)) {
+        		urls.offer(removeAnchorTags(urlLink));
 			}
 		}
-    	System.out.println("List of urls: " + urls);
 	}
 	
-	private List<SearchResultModel> searchPage(String url, Document htmlDocument, String[] words) {
+	private List<SearchResultModel> searchPage(String url, Document htmlDocument, String words) {
 		List<SearchResultModel> results = new ArrayList<SearchResultModel>();
+		htmlDocument.select("a").remove().text();
 		String bodyText = htmlDocument.body().text();
-		for (String searchWord : words) {
-			System.out.println("Searching " + url + " for the following word: " + searchWord);
-	        if (StringUtils.lowerCase(bodyText).contains(StringUtils.lowerCase(searchWord))) {
-	        	System.out.println("found");
-	        	SearchResultModel model = new SearchResultModel();
-	        	model.setTitle(htmlDocument.title());
-	        	model.setUrl(url);
-	        	model.setText(bodyText.substring(Math.max(bodyText.indexOf(searchWord)-150, 0), Math.min(bodyText.indexOf(searchWord)+150, bodyText.length())));
-	        	System.out.println(model);
-	        	results.add(model);
-	        	break;
-	        }
-		}
+		System.out.println("Searching " + url + " for the following phrase: " + words);
+        if (StringUtils.lowerCase(bodyText).contains(StringUtils.lowerCase(words))) {
+        	SearchResultModel model = new SearchResultModel();
+        	model.setTitle(htmlDocument.title());
+        	model.setUrl(url);
+        	model.setText(bodyText.substring(Math.max(bodyText.indexOf(words)-150, 0), Math.min(bodyText.indexOf(words)+150, bodyText.length())));
+        	System.out.println(model);
+        	results.add(model);
+        }
 		return results;
 	}
 	
+	private String removeAnchorTags(String uriStr) {
+		return uriStr.indexOf("#")!=-1?uriStr.substring(0, uriStr.indexOf("#")):uriStr;
+	}
+	
+	private boolean isValidURI(String uriStr) {
+	    try {
+	      URI uri = new URI(uriStr);
+	      return true;
+	    }
+	    catch (URISyntaxException e) {
+	        return false;
+	    }
+	}	
 }
