@@ -44,7 +44,7 @@ public class URLArrayBlockingQueue<E> extends ArrayBlockingQueue<String> {
 	}
 	
 	public int getSize() {
-		return urls.size();
+		return this.urls.size();
 	}
 
 	@Override

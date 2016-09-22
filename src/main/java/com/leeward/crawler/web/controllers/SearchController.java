@@ -22,6 +22,6 @@ public class SearchController {
 	public List<SearchResultModel> search(@PathVariable String url, @PathVariable String q) {
 		System.out.println("url: " + url);
 		System.out.println("q: " + q);
-		return searchService.search("http://"+url, q);
+		return searchService.execute("http://"+url, q);
 	}
 }
