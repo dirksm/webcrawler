@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.leeward.crawler.web.models.SearchResultModel;
-import com.leeward.crawler.web.services.SearchService;
+import com.leeward.crawler.web.services.SitePagesService;
 
 @RestController
 @RequestMapping(path="/search")
 public class SearchController {
 
 	@Autowired
-	SearchService searchService;
+	SitePagesService sitePagesService;
 	
 	@RequestMapping(value="/{url}/{q}", method=RequestMethod.GET)
 	public List<SearchResultModel> search(@PathVariable String url, @PathVariable String q) {
 		System.out.println("url: " + url);
 		System.out.println("q: " + q);
-		return searchService.execute("http://"+url, q);
+		return sitePagesService.getSitePagesList(url, q);
 	}
 }

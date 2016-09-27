@@ -8,6 +8,17 @@ public class SearchResultModel implements Serializable, Comparable<SearchResultM
 	private String url;
 	private String text;
 	
+	public SearchResultModel(String title, String url, String text) {
+		this();
+		this.title = title;
+		this.url = url;
+		this.text = text;
+	}
+
+	public SearchResultModel() {
+		super();
+	}
+
 	public String getTitle() {
 		return title;
 	}
