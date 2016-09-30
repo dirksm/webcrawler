@@ -41,6 +41,9 @@
 	  	<jstl.version>1.2</jstl.version>
 	  	<jackson.version>2.3.3</jackson.version>
 
+		<database.password>12345678</database.password>
+	    <database.username>root</database.username>
+	    <database.url>jdbc:mysql://192.168.33.21:3306/siteindex</database.url>
 	</properties>
 
 	<developers>
@@ -51,6 +54,7 @@
 	</developers>
 
 	<build>
+		<finalName>webcrawler</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -61,8 +65,37 @@
 			      <target>${java.version}</target>
 			    </configuration>
 			</plugin>
+			<plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-war-plugin</artifactId>
+	        <configuration>
+	            <webResources>
+	                <resource>
+	                    <directory>src/main/webapp/META-INF</directory>
+	                    <filtering>true</filtering>
+	                    <targetPath>META-INF</targetPath>
+	                </resource>
+	            </webResources>
+	        </configuration>
+	      </plugin>
 		</plugins>
 	</build>
+	<profiles>  
+	   <profile>   
+	       <id>prod</id>
+	       <activation>
+	       		<property>
+	       			<name>environment</name>
+	       			<value>production</value>
+	       		</property>
+	       </activation>
+	       <properties>
+		    <database.username>siteindex</database.username>
+	        <database.url>jdbc:mysql://localhost:3306/siteindex</database.url> 
+	       </properties>
+	   </profile>
+	</profiles>  
+		
 	
 	<scm>
 		<developerConnection>scm:git:https://github.com/dirksm/webcrawler.git</developerConnection>

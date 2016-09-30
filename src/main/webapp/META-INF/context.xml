@@ -1,0 +1,19 @@
+<Context>
+<Resource 
+	auth="Container" 
+	description="Indexer Datasource" 
+	driverClassName="com.mysql.jdbc.Driver" 
+	maxActive="50" 
+	maxIdle="30" 
+	maxWait="10000" 
+	name="jdbc/index" 
+	password="${database.password}" 
+	testOnBorrow="true" 
+	testOnReturn="false" 
+	testWhileIdle="true" 
+	type="javax.sql.DataSource" 
+	url="${database.url}" 
+	username="${database.username}" 
+	validationInterval="30000" 
+	validationQuery="SELECT 1"/>
+</Context>

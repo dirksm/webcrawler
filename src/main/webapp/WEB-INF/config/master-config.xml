@@ -7,5 +7,6 @@
            
 	<!-- Imports the configuration of the different infrastructure systems of the application -->
 	<import resource="webtracker-config.xml" />
+	<import resource="db-config.xml" />
 	
 </beans>
