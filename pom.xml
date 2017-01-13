@@ -40,10 +40,11 @@
 	  	<jaxb.version>2.1</jaxb.version>
 	  	<jstl.version>1.2</jstl.version>
 	  	<jackson.version>2.3.3</jackson.version>
+	  	<mysql-connector.version>5.1.38</mysql-connector.version>
 
 		<database.password>12345678</database.password>
 	    <database.username>root</database.username>
-	    <database.url>jdbc:mysql://192.168.33.21:3306/siteindex</database.url>
+	    <database.url>jdbc:mysql://localhost:3306/siteindex</database.url>
 	</properties>
 
 	<developers>
@@ -143,6 +144,11 @@
 	    	<version>${spring-framework.version}</version>
 	    	<scope>compile</scope>
 	    </dependency>
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>${mysql-connector.version}</version>
+		</dependency>
 	
 		<!-- Logging -->
 	    <dependency>
